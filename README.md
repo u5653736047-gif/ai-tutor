@@ -54,29 +54,24 @@ HelloAgents/
 ├── .env                              # 环境变量（LLM API Key 等）
 ├── requirements.txt                  # Python 依赖
 ├── README.md
-├── learning/                         # 📚 学习笔记与实验代码
-│   ├── 4.1.3封装基础LLM调用函数.py     #   LLM 调用封装（流式输出）
-│   ├── 4.2ReAct智能体的编码实现.py     #   ReAct 文本解析版 + SerpAPI 搜索
-│   └── function_calling_demo.py      #   Function Calling 原理演示
-└── react-cs-tutor/                   # 🚀 正式项目代码
-    ├── backend/                      # Python 后端
-    │   ├── core/                     # 核心框架层
-    │   │   └── base_agent.py         #   BaseAgent — LLM 调用统一封装
-    │   ├── agents/                   # 智能体层
-    │   │   └── react_agent.py        #   ReActAgent（Function Calling 版）
-    │   ├── tools/                    # 工具系统层
-    │   │   ├── tool.py               #   Tool 抽象基类
-    │   │   ├── tool_parameter.py     #   ToolParameter 参数定义（Pydantic）
-    │   │   ├── tool_registry.py      #   ToolRegistry 工具注册中心
-    │   │   └── builtin/              #   内置工具
-    │   │       └── calculator_tool.py #   CalculatorTool 示例工具
-    │   └── knowledge/                # 知识库层（规划中）
-    │       └── data/                 #   法律法规数据目录
-    ├── frontend/                     # TypeScript 前端（规划中）
-    │   └── src/
-    │       ├── api/                  #   后端 API 客户端
-    │       └── components/           #   React 组件
-    └── electron/                     # Electron 桌面壳（规划中）
+├── backend/                          # Python 后端
+│   ├── core/                         # 核心框架层
+│   │   └── base_agent.py             #   BaseAgent — LLM 调用统一封装
+│   ├── agents/                       # 智能体层
+│   │   └── react_agent.py            #   ReActAgent（Function Calling 版）
+│   ├── tools/                        # 工具系统层
+│   │   ├── tool.py                   #   Tool 抽象基类
+│   │   ├── tool_parameter.py         #   ToolParameter 参数定义（Pydantic）
+│   │   ├── tool_registry.py          #   ToolRegistry 工具注册中心
+│   │   └── builtin/                  #   内置工具
+│   │       └── calculator_tool.py    #   CalculatorTool 示例工具
+│   └── knowledge/                    # 知识库层（规划中）
+│       └── data/                     #   法律法规数据目录
+├── frontend/                         # TypeScript 前端（规划中）
+│   └── src/
+│       ├── api/                      #   后端 API 客户端
+│       └── components/               #   React 组件
+└── electron/                         # Electron 桌面壳（规划中）
 ```
 
 ## 核心特性
@@ -239,9 +234,7 @@ SERPAPI_API_KEY = "your_serpapi_key_here"   # 可选，用于搜索工具
 ## 开发计划
 
 - [x] LLM 调用封装（`BaseAgent` — Function Calling 支持）
-- [x] Function Calling 原理学习与演示
-- [x] ReAct 智能体 — 文本解析版（`learning/`）
-- [x] ReAct 智能体 — Function Calling 版（`react-cs-tutor/`）
+- [x] ReAct 智能体 — Function Calling 版（`backend/`）
 - [x] 可扩展工具系统（`Tool` 基类 + `ToolRegistry` + `ToolParameter`）
 - [x] CalculatorTool 示例工具
 - [ ] 法律知识库构建（8 部法律法规结构化 JSON 数据）
