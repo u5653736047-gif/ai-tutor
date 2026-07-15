@@ -1,4 +1,4 @@
-from backend.tools.tool import Tool
+from backend.tools.tool import Tool, FunctionTool
 from backend.tools.tool_parameter import ToolParameter
 from typing import Any, Callable
 
@@ -7,7 +7,6 @@ class ToolRegistry:
 
     def __init__(self):
         self._tools: dict[str, Tool] = {}
-        self._functions: dict[str, dict[str, Any]] = {}
 
     def register_tool(self, tool: Tool):
         """注册Tool对象"""
@@ -16,23 +15,22 @@ class ToolRegistry:
         self._tools[tool.name] = tool
         print(f"✅ 工具 '{tool.name}' 已注册。")
         
-    def register_function(self, name: str, description: str, func: Callable[[str], str]):
+    def register_function(self, name: str, description: str,
+                          func: Callable[..., str],
+                          parameters: list[ToolParameter] = None):
         """
         直接注册函数作为工具（简便方式）
+
+        内部将函数包装为 FunctionTool 并归入统一的 _tools 通道，
+        确保其能被 to_function_calling_tools() 与 get_tool_map() 正常消费。
 
         Args:
             name: 工具名称
             description: 工具描述
-            func: 工具函数，接受字符串参数，返回字符串结果
+            func: 工具函数
+            parameters: 可选的参数定义；缺省时从函数签名自动推导
         """
-        if name in self._functions:
-            print(f"⚠️ 警告:工具 '{name}' 已存在，将被覆盖。")
-
-        self._functions[name] = {
-            "description": description,
-            "func": func
-        }
-        print(f"✅ 工具 '{name}' 已注册。")
+        self.register_tool(FunctionTool(name, description, func, parameters))
 
     def to_function_calling_tools(self) -> list[dict]:
         """

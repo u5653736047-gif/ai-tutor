@@ -3,7 +3,7 @@ from backend.core.base_agent import BaseAgent
 from backend.tools.tool_registry import ToolRegistry
 
 SYSTEM_AGENT_PROMPT = """
-你是一个具有调用外部工具能力的智能问答助手，你需要根据用户的问题来做回答，必要时可以调用外部工具。
+你是一个具有调用外部工具能力的智能问答助手。当用户询问问题时，你需要调用外部工具来检索相关内容，并将检索的内容整合后返回给用户。
 """
 
 class ReActAgent:
