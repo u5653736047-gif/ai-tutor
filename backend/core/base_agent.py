@@ -11,7 +11,6 @@ import httpx
 import requests
 from openai import OpenAI
 from dotenv import load_dotenv
-from typing import List,Dict,Any
 
 # 禁用SSL证书验证（仅用于开发环境）
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -40,8 +39,8 @@ class BaseAgent:
         
         self.client = OpenAI(api_key = self.api_key,base_url = self.base_url,timeout = self.timeout,http_client = _httpx_client)
 
-    def thinking(self, message : List[Dict[str,str]], 
-                        tools: List[Dict[str,str]], 
+    def thinking(self, message : list[dict[str,str]], 
+                        tools: list[dict[str,str]], 
                         tool_choice : str = "auto",
                         temperature : float = 0
                     ):

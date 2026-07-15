@@ -12,7 +12,6 @@ class ReActAgent:
         self.llm_client = llm_client
         self.tool_registry = tool_registry
         self.max_steps = max_steps
-        self.history = []
 
 
     def run(self,question : str):
@@ -45,19 +44,34 @@ class ReActAgent:
                 return message.content
 
             for tool_call in message.tool_calls:
-                function_name = tool_call.function.name
-                arguments = json.loads(tool_call.function.arguments)
-                print(f"调用工具：{function_name} ({arguments})\n")
+                function_name = tool_call.function.name # 工具调用中返回的工具名称
+                raw_arguments = tool_call.function.arguments or {}
 
-                if function_name not in tool_map:
-                    result = f"工具 \"{function_name}\" 未找到"
+                try:
+                    arguments = json.loads(raw_arguments)
+                except json.JSONDecodeError as e:
+                    arguments = {}
+                    result = f"参数解析失败：{e}，请检查参数 arguments 是否未合法JSON。原始输入：{raw_arguments}"
+                    print(result)
+
                 else:
-                    result = tool_map[function_name](arguments)
+                    print(f"调用工具：{function_name}({arguments})\n")
 
+                    if function_name not in tool_map:
+                        result = f"工具 \"{function_name}\" 未找到"
+                    else:
+                        try:
+                            result = tool_map[function_name](arguments)
+                        except Exception as e:
+                            result = f"工具 \"{function_name}\" 执行出错：{type(e).__name__}:{e}，请检查参数或换一种方式"
+                            print(f"工具 {function_name} 执行异常：{e}")
+                
                 print(f"工具返回结果：{result}")
-
                 messages.append({
                     "role" : "tool",
                     "tool_call_id" : tool_call.id,
                     "content" : str(result)
                 })
+                
+        print(f"以达到最大推理步数 {self.max_steps} ，未能给出最终答案")
+        return f"抱歉，经过最大推理步数 {self.max_steps} ，未能给出最终答案"
