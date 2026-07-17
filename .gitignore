@@ -6,3 +6,6 @@ learning/
 .vscode/
 .qoder/
 .trae/
+.uploads/
+node_modules/
+dist/

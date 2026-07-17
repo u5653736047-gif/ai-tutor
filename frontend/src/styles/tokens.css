@@ -1,0 +1,171 @@
+/* ============================================================
+   Design Tokens — 设计令牌
+   ============================================================
+   三层结构:
+   1. 原始色板(brand / background / text / state / step)
+   2. 语义映射(--background / --primary / --elev-* ...)
+      页面里只写语义变量,不写死色值
+   3. 暗色模式只重写第 2 层,组件代码零改动
+   ============================================================ */
+
+/* === 第 1 层:原始色板 === */
+:root {
+  /* 品牌蓝(Apple 系统蓝)— 9 阶 */
+  --brand-50: #e8f2ff;
+  --brand-100: #cfe5ff;
+  --brand-200: #9fcbff;
+  --brand-300: #66abff;
+  --brand-400: #2e8dff;
+  --brand-500: #007aff;
+  --brand-600: #0064d6;
+  --brand-700: #004fad;
+  --brand-800: #003b82;
+  --brand-900: #00275a;
+
+  /* 中性背景色 — 10 阶灰阶 */
+  --background-50: #ffffff;
+  --background-100: #f7f7fa;
+  --background-200: #f2f2f7;
+  --background-300: #e5e5ea;
+  --background-400: #d1d1d6;
+  --background-500: #aeaeb2;
+  --background-600: #8e8e93;
+  --background-700: #3a3a3c;
+  --background-800: #1c1c1e;
+  --background-900: #000000;
+
+  /* 文字色 — 10 阶灰阶 */
+  --text-50: #f5f5f7;
+  --text-100: #e3e3e8;
+  --text-200: #c7c7cc;
+  --text-300: #aeaeb2;
+  --text-400: #8e8e93;
+  --text-500: #6e6e73;
+  --text-600: #48484a;
+  --text-700: #3c3c43;
+  --text-800: #1d1d1f;
+  --text-900: #000000;
+
+  /* 状态色 */
+  --state-success: #34c759;
+  --state-success-dark: #30d158;
+  --state-error: #ff3b30;
+  --state-error-dark: #ff453a;
+
+  /* 推理步骤角色色(Apple 系统色) */
+  --step-thought-raw: #007aff;     /* 思考 — 系统蓝 */
+  --step-action-raw: #ff9500;      /* 工具调用 — 系统橙 */
+  --step-observation-raw: #30b0c7; /* 观察 — 系统青 */
+  --step-final-raw: #34c759;       /* 结论 — 系统绿 */
+
+  /* === 第 2 层:语义映射 === */
+  --background: var(--background-200);
+  --foreground: var(--text-800);
+  --card: var(--background-50);
+  --card-foreground: var(--text-800);
+  --primary: var(--brand-500);
+  --primary-foreground: var(--background-50);
+  --secondary: var(--background-200);
+  --secondary-foreground: var(--text-800);
+  --muted: var(--background-200);
+  --muted-foreground: var(--text-500);
+  --accent: var(--background-100);
+  --accent-foreground: var(--text-800);
+  --destructive: var(--state-error);
+  --destructive-foreground: #ffffff;
+  --success: var(--state-success);
+  --success-foreground: #ffffff;
+  --border: var(--background-300);
+  --input: var(--background-400);
+  --ring: var(--brand-500);
+
+  /* 推理步骤语义色 */
+  --step-thought: var(--step-thought-raw);
+  --step-action: var(--step-action-raw);
+  --step-observation: var(--step-observation-raw);
+  --step-final: var(--step-final-raw);
+
+  /* 侧栏 */
+  --sidebar: var(--background-200);
+  --sidebar-foreground: var(--text-800);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-primary-foreground: var(--background-50);
+  --sidebar-accent: var(--background-300);
+  --sidebar-border: var(--background-300);
+
+  /* 排版:
+     拉丁/数字用 DM Sans(字重丰富、字距优雅),
+     中文回退到平台系统字体(PingFang SC / Microsoft YaHei)——
+     系统字体自带视觉字号与字距调优(Apple 排版原则)。 */
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, -apple-system,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* 圆角阶梯 */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+
+  /* 间距基数 */
+  --spacing: 0.24rem;
+
+  /* 海拔阴影(从最轻到最重)— 大面积的投影比小面积更重 */
+  --elev-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --elev-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
+  --elev-md: 0 4px 12px -2px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --elev-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.1), 0 4px 8px -4px rgba(0, 0, 0, 0.05);
+  --elev-xl: 0 24px 64px -16px rgba(0, 0, 0, 0.16), 0 8px 24px -8px rgba(0, 0, 0, 0.08);
+  /* 发送按钮的品牌光辉 */
+  --elev-glow: 0 4px 16px -2px rgba(0, 122, 255, 0.45);
+
+  /* 环境光斑(空状态背景)— 暗色下重写 */
+  --aurora-1: rgba(0, 122, 255, 0.14);
+  --aurora-2: rgba(175, 82, 222, 0.12);
+  --aurora-3: rgba(48, 176, 199, 0.1);
+}
+
+/* === 暗色模式:只重写第 2 层语义映射 === */
+.dark {
+  --background: var(--background-900);
+  --foreground: var(--text-50);
+  --card: var(--background-800);
+  --card-foreground: var(--text-50);
+  --primary: var(--brand-400);
+  --primary-foreground: var(--background-900);
+  --secondary: var(--background-800);
+  --secondary-foreground: var(--text-50);
+  --muted: var(--background-800);
+  --muted-foreground: var(--text-300);
+  --accent: var(--background-700);
+  --accent-foreground: var(--text-50);
+  --destructive: var(--state-error-dark);
+  --success: var(--state-success-dark);
+  --border: var(--background-700);
+  --input: var(--background-700);
+  --ring: var(--brand-400);
+  --sidebar: var(--background-900);
+  --sidebar-foreground: var(--text-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--background-900);
+  --sidebar-accent: var(--background-700);
+  --sidebar-border: var(--background-700);
+
+  --step-thought: #0a84ff;
+  --step-action: #ff9f0a;
+  --step-observation: #40c8e0;
+  --step-final: #30d158;
+
+  /* 暗色下阴影更深、环境光更克制 */
+  --elev-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --elev-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35), 0 1px 3px -1px rgba(0, 0, 0, 0.3);
+  --elev-md: 0 4px 12px -2px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --elev-lg: 0 12px 32px -8px rgba(0, 0, 0, 0.5), 0 4px 8px -4px rgba(0, 0, 0, 0.3);
+  --elev-xl: 0 24px 64px -16px rgba(0, 0, 0, 0.6), 0 8px 24px -8px rgba(0, 0, 0, 0.4);
+  --elev-glow: 0 4px 16px -2px rgba(46, 141, 255, 0.5);
+
+  --aurora-1: rgba(10, 132, 255, 0.16);
+  --aurora-2: rgba(191, 90, 242, 0.14);
+  --aurora-3: rgba(64, 200, 224, 0.1);
+}
