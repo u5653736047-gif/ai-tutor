@@ -34,12 +34,28 @@ def build_domain_agent() -> ReActAgent:
     return ReActAgent(llm_client=BaseAgent(), tool_registry=tool_registry)
 
 
+def _print_result(result: dict) -> None:
+    """演示结构化结果的消费方式：先打印推理摘要，再按 status 展示答案"""
+    for s in result["steps"]:
+        for a in s["actions"]:  # 收尾轮 actions 为空，自然跳过
+            print(f"Step{s['step']}: {a['tool']}({a['arguments']})")
+    if result["status"] != "success":  # 步数耗尽 / LLM 故障不按正常答案展示
+        print(f"[{result['status']}] {result['answer'] or 'LLM 未能返回有效输出'}")
+    else:
+        print(result["answer"])
+
+
 if __name__ == '__main__':
     # 命令行入口：python -m backend.core.agent_run "你的问题"（不带参数则进入交互式问答）
     agent = build_domain_agent()
 
+    # sys.argv 是命令行参数列表：sys.argv[0] 固定是脚本路径本身，
+    # 用户额外传入的参数从 sys.argv[1] 开始。
+    # 因此 len(sys.argv) > 1 表示"用户在命令行带了问题参数"，
+    # 例如：python -m backend.core.agent_run 什么是数据分类分级
+    # 此时直接把参数拼成问题一次性回答；否则进入下方的交互式问答循环。
     if len(sys.argv) > 1:
-        agent.run(" ".join(sys.argv[1:]))
+        _print_result(agent.run(" ".join(sys.argv[1:])))
     else:
         print("网络安全与数据合规问答助手（输入 exit 退出）")
         while True:
@@ -47,4 +63,4 @@ if __name__ == '__main__':
             if question.lower() in ("exit", "quit", "退出"):
                 break
             if question:
-                agent.run(question)
+                _print_result(agent.run(question))
