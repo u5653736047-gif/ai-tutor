@@ -37,7 +37,7 @@ class AgentResult(TypedDict):
     status: success（正常作答）/ max_steps_reached（步数耗尽）/ llm_error（LLM 故障）
     """
     question: str
-    answer: Optional[str]
+    answer: str
     status: str
     steps: list[Step]
 
@@ -69,8 +69,11 @@ class ReActAgent:
 
             message = self.llm_client.thinking(messages, tools, "auto", 0.1)
             if not message:
+                # LLM 故障：status 是给程序的信号，answer 是给用户的话术，各归其位
                 print("LLM 未能返回有效输出")
-                return {"question": question, "answer": None, "status": "llm_error", "steps": steps}
+                return {"question": question,
+                        "answer": "抱歉，模型服务暂时不可用或网络异常，请稍后重试。",
+                        "status": "llm_error", "steps": steps}
 
             # 将 LLM 输出追加到 message 列表当中
             messages.append(message)
@@ -87,26 +90,34 @@ class ReActAgent:
             observations: list[str] = []
             for tool_call in message.tool_calls:
                 function_name = tool_call.function.name # 工具调用中返回的工具名称
-                raw_arguments = tool_call.function.arguments or {}
+                # arguments 应为 JSON 字符串；LLM 偶发返回 None/空串，归一化为 "{}" 避免 json.loads 抛 TypeError 崩溃
+                raw_arguments = tool_call.function.arguments or "{}"
 
                 try:
                     arguments = json.loads(raw_arguments)
-                except json.JSONDecodeError as e:
+                except (json.JSONDecodeError, TypeError) as e:
+                    # 解析失败不中断循环：把错误作为 Observation 喂回 LLM，引导它下一轮修正参数重试
                     arguments = {}
                     result = f"参数解析失败：{e}，请检查参数 arguments 是否未合法JSON。原始输入：{raw_arguments}"
                     print(result)
 
                 else:
-                    print(f"调用工具：{function_name}({arguments})\n")
-
-                    if function_name not in tool_map:
-                        result = f"工具 \"{function_name}\" 未找到"
+                    if not isinstance(arguments, dict):
+                        # JSON 合法但不是对象（如 "[1,2]"）：工具无法按关键字参数解包，提前拦截并引导重试
+                        result = f"参数格式错误：arguments 必须是 JSON 对象，实际为 {type(arguments).__name__}。原始输入：{raw_arguments}"
+                        print(result)
+                        arguments = {}
                     else:
-                        try:
-                            result = tool_map[function_name](arguments)
-                        except Exception as e:
-                            result = f"工具 \"{function_name}\" 执行出错：{type(e).__name__}:{e}，请检查参数或换一种方式"
-                            print(f"工具 {function_name} 执行异常：{e}")
+                        print(f"调用工具：{function_name}({arguments})\n")
+
+                        if function_name not in tool_map:
+                            result = f"工具 \"{function_name}\" 未找到"
+                        else:
+                            try:
+                                result = tool_map[function_name](arguments)
+                            except Exception as e:
+                                result = f"工具 \"{function_name}\" 执行出错：{type(e).__name__}:{e}，请检查参数或换一种方式"
+                                print(f"工具 {function_name} 执行异常：{e}")
 
                 print(f"工具返回结果：{result}")
                 actions.append({"tool": function_name, "arguments": arguments})
@@ -120,8 +131,10 @@ class ReActAgent:
             steps.append({"step": step + 1, "thought": message.content,
                           "actions": actions, "observations": observations})
 
-        # 步数耗尽属于失败态：answer 给兜底话术，但 status 显式标记，调用方不应按正常答案展示
+        # 步数耗尽属于失败态：status 显式标记，调用方不应按正常答案展示；
+        # 话术需给出引导（拆小问题/补充背景），而不只是陈述失败
         print(f"以达到最大推理步数 {self.max_steps} ，未能给出最终答案")
         return {"question": question,
-                "answer": f"抱歉，经过最大推理步数 {self.max_steps} ，未能给出最终答案",
+                "answer": f"抱歉，该问题较复杂，经过 {self.max_steps} 轮推理仍未能得出结论。"
+                          "建议将问题拆分为更小的子问题，或补充更多背景后重试。",
                 "status": "max_steps_reached", "steps": steps}

@@ -42,13 +42,17 @@ def test_in_domain_question(agent):
     assert _has_disclaimer(answer), "答案缺少免责声明"
 
 
+# 拒答措辞同样会漂移（"无法确定"/"未收录"/"不包含"），命中任一即可
+REFUSAL_KEYWORDS = ("无法确定", "未收录", "不包含", "没有相关", "无法回答", "不在知识库")
+
+
 def test_out_of_domain_question(agent):
     """库外问题（劳动法不在知识库覆盖范围）：应明确拒答而非编造"""
     result = agent.run("劳动法规定的加班工资怎么算？")
     answer = result["answer"]
     assert result["status"] == "success", f"异常状态：{result['status']}"
     assert answer, "Agent 未返回答案"
-    assert "无法确定" in answer, "库外问题未按约束拒答"
+    assert any(kw in answer for kw in REFUSAL_KEYWORDS), "库外问题未按约束拒答"
     assert _has_disclaimer(answer), "答案缺少免责声明"
 
 

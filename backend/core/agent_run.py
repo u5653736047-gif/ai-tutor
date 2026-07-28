@@ -40,7 +40,7 @@ def _print_result(result: dict) -> None:
         for a in s["actions"]:  # 收尾轮 actions 为空，自然跳过
             print(f"Step{s['step']}: {a['tool']}({a['arguments']})")
     if result["status"] != "success":  # 步数耗尽 / LLM 故障不按正常答案展示
-        print(f"[{result['status']}] {result['answer'] or 'LLM 未能返回有效输出'}")
+        print(f"[{result['status']}] {result['answer']}")
     else:
         print(result["answer"])
 
