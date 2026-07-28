@@ -1,10 +1,19 @@
+"""
+领域问答智能体装配入口。
+build_domain_agent() 是唯一的装配函数：FastAPI 后端、测试脚本、命令行入口统一复用，
+避免工具注册逻辑多处复制后漂移不一致。
+"""
+import sys
+
 from backend.core.base_agent import BaseAgent
 from backend.agents.react_agent import ReActAgent
 from backend.tools.tool_registry import ToolRegistry
 from backend.tools.RAG.vector_search import vector_search
 from backend.tools.RAG.bm25_search import bm25_search
 
-if __name__ == '__main__':
+
+def build_domain_agent() -> ReActAgent:
+    """组装领域问答智能体：注册双检索工具，返回就绪的 Agent"""
     tool_registry = ToolRegistry()  # 实例化工具注册表
 
     # 注册语义检索工具：description 是 LLM 做工具路由的唯一依据，需写清适用场景
@@ -21,6 +30,21 @@ if __name__ == '__main__':
         func=bm25_search,
     )
 
-    # 组装 ReAct 智能体：LLM 自主决定调用哪个检索工具，并把检索结果整合为回答
-    agent = ReActAgent(llm_client=BaseAgent(), tool_registry=tool_registry)
-    agent.run("收集用户手机号需要遵守哪些规定？")
+    # 组装 ReAct 智能体：LLM 自主决定调用哪个检索工具、检索几轮，信息足够后才输出答案
+    return ReActAgent(llm_client=BaseAgent(), tool_registry=tool_registry)
+
+
+if __name__ == '__main__':
+    # 命令行入口：python -m backend.core.agent_run "你的问题"（不带参数则进入交互式问答）
+    agent = build_domain_agent()
+
+    if len(sys.argv) > 1:
+        agent.run(" ".join(sys.argv[1:]))
+    else:
+        print("网络安全与数据合规问答助手（输入 exit 退出）")
+        while True:
+            question = input("\n请输入问题：").strip()
+            if question.lower() in ("exit", "quit", "退出"):
+                break
+            if question:
+                agent.run(question)
